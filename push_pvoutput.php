@@ -1,7 +1,7 @@
 <?php
 
 // setup db connection
-$db = new PDO('pgsql:host=localhost;user=solax;dbname=power;password=Ua3iQCuLBr4l');
+$db = new PDO('pgsql:host=localhost;user=user;dbname=dname;password=password');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 
