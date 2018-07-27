@@ -12,4 +12,7 @@ To make it work with persistent db storage:
 - setup cron to run the import scripts (for example every 15 minutes)
 - setup cron to run the push script every 15 minutes (use a 1 minute offset)
 
+Requirements:
+- PHP >= 7.1 + php-curl + php-PDO (if you want DB functionality)
+
 

@@ -46,7 +46,7 @@ class PVOutput {
         }
 
 
-	public function addBatchOutputs (array $data){
+	public function addBatchOutputs (array $data) : void {
 		$c = $this->prepareRequest($this->endPoints['addBatchOutput']);
 		if ( count($data) > 30 ){
 			throw new Exception('max 30 outputs per batch');
@@ -60,7 +60,7 @@ class PVOutput {
 	}
 	
 
-	public function addBatchStatus(array $data){
+	public function addBatchStatus(array $data) :  void {
 		$max = 30;
 		$slices = ceil(count($data) / $max);
 		$results = [];
@@ -69,7 +69,7 @@ class PVOutput {
 		}
 	}
 
-	protected function realAddBatchStatus (array $data){
+	protected function realAddBatchStatus (array $data) : void {
 		$c = $this->prepareRequest($this->endPoints['addBatchStatus']);
 		if ( count($data) > 30 ){
 			throw new Exception('max 30 status reports');
@@ -83,3 +83,4 @@ class PVOutput {
 
 
 }
+?>

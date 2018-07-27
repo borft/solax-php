@@ -103,7 +103,7 @@ class solaxScraper {
 		return $this->sites;
 	}
 
-	public function setSite(int $siteIndex = 0){
+	public function setSite(int $siteIndex = 0) : void {
 		$this->site = $this->sites[$siteIndex];
 	}
 
@@ -124,7 +124,7 @@ class solaxScraper {
 		return $this->inverters;
 	}
 
-	public function setInverter(int $inverterIndex = 0){
+	public function setInverter(int $inverterIndex = 0) : void {
 		if ( count($this->inverters) == 0 ){
 			throw new Exception('No inverters yet dummy!');
 		}
