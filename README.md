@@ -2,10 +2,11 @@
 
 PHP scraper for Solax PV Cloud
 
+Scrapes performance data from a Solax Solar inverter from the Solax Cloud by using the APP Api
 
 To make it work with persistent db storage:
 - create a db (tested on PG)
- - impotr db schema from database.sql
+- import db schema from database.sql
 -  create a user, and put credentials in the import (example-db.php) and pv_push scripts
 - add api-key (not read-only) and site-id to pv_push script
 
