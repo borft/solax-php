@@ -52,7 +52,12 @@ EOI;
 	$stmt->bindValue(':timestamp', $timestamp);
 	$stmt->execute();
 
-	return $stmt->fetch(PDO::FETCH_ASSOC);	
+	$ret = $stmt->fetch(PDO::FETCH_ASSOC);	
+
+	if ( $ret === false ){
+		$ret = [];
+	}
+	return $ret;
 };
 
 // only send daily totals if so requested

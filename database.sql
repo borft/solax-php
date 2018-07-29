@@ -17,6 +17,7 @@ CREATE TABLE public.electricity (
     power_out_l3 numeric(5,3)
 );
 
+CREATE TABLE public.solax (
     sample timestamp without time zone NOT NULL,
     current_dc_1 numeric(4,1) DEFAULT 0,
     current_dc_2 numeric(4,1) DEFAULT 0,
