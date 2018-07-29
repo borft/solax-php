@@ -83,12 +83,17 @@ EOI;
 	$data = [];
 	while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ){
 		$eStats = $getDeliveredEnergy($row['sample']);
-		// sum of energy out in both tariffs
-		$energyExported = $eStats['kwh_out_1'] + $eStats['kwh_out_2'];
 
-		// generated energy - exported energy + consumed energy
-		$energyUsed = $row['yield_today'] - $energyExported + $eStats['kwh_in_1'] + $eStats['kwh_in_2']; 
-		
+		if ( count($eStats) > 0 ){
+			// sum of energy out in both tariffs
+			$energyExported = $eStats['kwh_out_1'] + $eStats['kwh_out_2'];
+
+			// generated energy - exported energy + consumed energy
+			$energyUsed = $row['yield_today'] - $energyExported + $eStats['kwh_in_1'] + $eStats['kwh_in_2']; 
+		} else {
+			$energyExported = '';
+			$energyUsed = '';
+		}
 		$data[] = implode(',',[
 			str_replace('-','',$row['date']), (int)$row['yield_today'],
 			(int)$energyExported, (int)$energyUsed,
