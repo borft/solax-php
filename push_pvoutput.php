@@ -131,14 +131,18 @@ $data = [];
 while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ){
 	//get stats from meter
 	$eStats = $getDeliveredEnergy($row['sample']);
+
+	if ( count($eStats) > 0 ){	
+		// energy consumption is:
+		// (generated_energy) - (exported enery) + (imported energy)
+		$energyConsumption = $row['yield_today'] - $eStats['kwh_out_1'] - $eStats['kwh_out_2'] + $eStats['kwh_in_1'] + $eStats['kwh_in_2'];
 	
-	// energy consumption is:
-	// (generated_energy) - (exported enery) + (imported energy)
-	$energyConsumption = $row['yield_today'] - $eStats['kwh_out_1'] - $eStats['kwh_out_2'] + $eStats['kwh_in_1'] + $eStats['kwh_in_2'];
-	
-	// current power consumption:
-	// (pv power generation) - (exported power) + (imported_power)
-	$powerConsumption = $row['power_ac'] - $eStats['power_out'] + $eStats['power_in'];
+		// current power consumption:
+		// (pv power generation) - (exported power) + (imported_power)
+		$powerConsumption = $row['power_ac'] - $eStats['power_out'] + $eStats['power_in'];
+	} else {
+		$energyConsumption = $powerConsumption = '';
+	}
 
 	$data[] = implode(',', [
 		str_replace('-','',$row['date']), $row['time'], (int)$row['yield_today'], 
