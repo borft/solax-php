@@ -8,6 +8,9 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 require_once('PVOutput.php');
 $pvo = new PVOutput('api-key', 'site-id');
 
+// only set this to true if you are a donator
+$enableExtendedValues = false;
+
 /*
  * function to get power meter stats, using interval from
  * start of the day (first sample), until $timestamp
@@ -144,13 +147,23 @@ while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ){
 		$energyConsumption = $powerConsumption = '';
 	}
 
-	$data[] = implode(',', [
-		str_replace('-','',$row['date']), $row['time'], (int)$row['yield_today'], 
-		(int)$row['power_ac'], $energyConsumption, $powerConsumption, $row['temperature'], $row['voltage_ac'],
-		$row['power_dc_1'], $row['power_dc_2'],
-		$row['current_dc_1'], $row['current_dc_2'],
-		$row['voltage_dc_1'], $row['voltage_dc_2']
-	]);
+	if ( $enableExtendedValues ){
+
+		$data[] = implode(',', [
+			str_replace('-','',$row['date']), $row['time'], (int)$row['yield_today'], 
+			(int)$row['power_ac'], $energyConsumption, $powerConsumption, $row['temperature'], $row['voltage_ac'],
+			$row['power_dc_1'], $row['power_dc_2'],
+			$row['current_dc_1'], $row['current_dc_2'],
+			$row['voltage_dc_1'], $row['voltage_dc_2']
+		]);
+	} else {
+
+		$data[] = implode(',', [
+			str_replace('-','',$row['date']), $row['time'], (int)$row['yield_today'], 
+			(int)$row['power_ac'], $energyConsumption, $powerConsumption, $row['temperature'], $row['voltage_ac']
+		]);
+
+	}
 }
 //print_r($data);
 printf("Found %d records @ %s\n", count($data), date('Ymd H:i:s'));
