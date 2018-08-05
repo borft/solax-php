@@ -32,7 +32,8 @@ class PVOutput {
                         CURLOPT_RETURNTRANSFER => 1,
                         CURLOPT_POST => 1,
                         CURLOPT_HTTPHEADER => $this->headers,
-			CURLOPT_CAINFO, 'COMODO_RSA_Certification_Authority.pem'
+			CURLOPT_SSL_VERIFYPEER => 1,
+			CURLOPT_CAINFO => './COMODO_RSA_Certification_Authority.pem'
                         ]);
                 return $c;
 
