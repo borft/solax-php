@@ -19,3 +19,6 @@ To make it work with persistent db storage:
 - PHP >= 7.1 + php-curl + php-PDO (if you want DB functionality)
 
 
+## Setup on Windows
+
+Dan wrote a short how to, to get it up and running on Windows on the PVOutput forums. The post can be found here: https://forum.pvoutput.org/t/solax-x-hybrid-my-new-inverter-and-pvoutput-question/259/15
