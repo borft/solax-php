@@ -2,14 +2,14 @@
 
 
 // setup db connection
-$db = new PDO('pgsql:host=localhost;user=user;dbname=dbname;password=password');
+$db = new PDO('pgsql:host=localhost;user=solax;dbname=power;password=');
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // load solax API scraper
 require_once('SolaxScraper.php');
 try {
 	// login to api (to obtain tokenID)
-	$s = new solaxScraper('user', 'password');
+	$s = new solaxScraper('<user>', '<password>');
 
 	// get sites (default selects site 0)
 	$s->mysite();
@@ -36,7 +36,7 @@ try {
 	exit;
 }
 printf("Got %d rows\n", count($info));
-
+//print_r($info);
 // map fields in JSON to DB table columns
 $fields = [ 	'sample' => 'uploadTimeValueGenerated', 
 		'current_dc_1' => 'idc1',
@@ -55,12 +55,17 @@ $fields = [ 	'sample' => 'uploadTimeValueGenerated',
 	];
 
 // build insert query
-$query = sprintf('INSERT INTO solax (%s) VALUES(%s)',
+$query = sprintf('INSERT INTO solax (%s) VALUES(%s) ON CONFLICT (sample) DO UPDATE SET %s',
 	implode(array_keys($fields), ','),
 	implode(array_map(function ($field ){
 			return sprintf(':%s', $field);
 		}, 
-		array_keys($fields)),','));
+		array_keys($fields)),','),
+	implode(array_map(function($field){
+			return sprintf('%s=excluded.%s', $field, $field);
+		},
+		array_keys($fields)),',')
+	);
 $stmt = $db->prepare($query);
 
 $counter = 0;
@@ -84,6 +89,16 @@ foreach ( $info as $sample ){
 				$sample->{$apiField}
 			);
 		});
+	/*
+	array_walk($fields,
+		function (string $apiField, string $dbField) use ($stmt, $sample) : void {
+			//printf ("Binding %s to %s with value %s \n", $dbField, $apiField, $sample->{$apiField});
+			$stmt->bindValue(
+				sprintf(':%s', $dbField),
+				$sample->{$apiField}
+			);
+		});
+*/
 	try {
 		$stmt->execute();
 		$counter++;
