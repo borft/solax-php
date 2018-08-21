@@ -15,7 +15,6 @@ class Config {
 	 */
 	protected function __construct(){
 		$this->config = parse_ini_file(__DIR__ . '/../config/solax-php.ini', true);
-		print_r($this->config);
 	}
 
 
