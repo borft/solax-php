@@ -74,6 +74,17 @@ $query = sprintf('INSERT INTO solax (%s) VALUES(%s) ON CONFLICT (sample) DO UPDA
 	);
 $stmt = $db->prepare($query);
 
+// try to fetch temp from openweathermap if so desired
+if ( Config::get('options', 'temperature') == 'openweathermap' ){
+	$url = sprintf('http://api.openweathermap.org/data/2.5/weather?id=%s&lang=en&units=metric&APPID=%s',
+		Config::get('openweathermap', 'id'), Config::get('openweathermap', 'appid'));
+	$contents = file_get_contents($url);
+	$clima = json_decode($contents);
+
+ 	$tempOpenweathermap = (int) $clima->main->temp;
+}
+
+
 $counter = 0;
 foreach ( $info as $sample ){
 	// we don't need records in the future
@@ -90,6 +101,11 @@ foreach ( $info as $sample ){
 	$dateTime = date('Y-m-d H:i:s', (3600* Config::get('solax', 'time_offset')) + $sample->uploadTime/1000);
 
 	$sample->uploadTimeValueGenerated = $dateTime;
+
+	// override temp
+	if ( isset($tempOpenweathermap) ){
+		$sample->temperature = $tempOpenweathermap;
+	}
 
 	// no yield befor 3am
 	// this is to prevent crap in the db

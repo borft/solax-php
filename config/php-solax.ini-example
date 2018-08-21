@@ -21,10 +21,15 @@ push_electricity = true
 
 
 [options]
-; possibilities: inverter,something else
+; possibilities: inverter,openweathermap
 temperature = inverter
 
 ; set to true, only if donator at pvoutput.org
 extended_attributes = true
 
+[openweathermap]
+; set id of ciy here
+id = 
+; app id
+appid = 
 
