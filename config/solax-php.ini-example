@@ -28,13 +28,14 @@ push_electricity = true
 ; amonut of history to push
 push_window = 2 hours
 
+; set to true, only if donator at pvoutput.org
+extended_data = true
+
+
 
 [options]
 ; possibilities: inverter,openweathermap
 temperature = inverter
-
-; set to true, only if donator at pvoutput.org
-extended_attributes = true
 
 [openweathermap]
 ; set id of ciy here

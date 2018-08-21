@@ -2,6 +2,7 @@
 
 namespace solax_php;
 use \PDO as PDO;
+use \Exception as Exception;
 
 require_once(__DIR__ . '/../lib/autoloader.php');
 
@@ -14,9 +15,6 @@ $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $pvo = new PVOutput(Config::get('pvoutput','api-key'), Config::get('pvoutput', 'site-id'));
-
-// only set this to true if you are a donator
-$enableExtendedValues = false;
 
 /*
  * function to get power meter stats, using interval from
@@ -120,6 +118,7 @@ SELECT
 	DATE(sample) as date,
 	CONCAT(lpad(cast(extract(hour from sample) as varchar),2,'0'), ':', lpad(cast(extract(minute from sample) as varchar),2,'0')) as time,
 	yield_today * 1000 as yield_today,
+	-1 as yield_today2,
 	power_ac,
 	power_dc_1,
 	power_dc_2,
@@ -155,7 +154,7 @@ while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ){
 		$energyConsumption = $powerConsumption = '';
 	}
 
-	if ( $enableExtendedValues ){
+	if ( Config::get('pvoutput', 'extended_data') == '1' ){
 
 		$data[] = implode(',', [
 			str_replace('-','',$row['date']), $row['time'], (int)$row['yield_today'], 

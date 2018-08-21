@@ -1,6 +1,7 @@
 <?php
 namespace solax_php;
 use \PDO as PDO;
+use \Exception as Exception;
 
 require_once(__DIR__ . '/../lib/autoloader.php');
 
