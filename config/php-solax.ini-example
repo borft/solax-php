@@ -1,0 +1,30 @@
+[database]
+hostname = localhost
+database = 
+username = 
+password = 
+
+; add SolaxCloud credentials here
+[solax]
+username = 
+password = 
+
+; define timeoffset in hours
+time_offset = 7
+
+[pvoutput]
+api-key = 
+site-id = 
+; if you have smart meter data
+; enable this to push consumption/ export, etc
+push_electricity = true
+
+
+[options]
+; possibilities: inverter,something else
+temperature = inverter
+
+; set to true, only if donator at pvoutput.org
+extended_attributes = true
+
+
