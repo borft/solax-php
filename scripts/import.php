@@ -2,7 +2,7 @@
 namespace solax_php;
 use \PDO as PDO;
 
-require_once('../lib/autoloader.php');
+require_once(__DIR__ . '/../lib/autoloader.php');
 
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
@@ -61,17 +61,29 @@ $fields = [ 	'sample' => 'uploadTimeValueGenerated',
 	];
 
 // build insert/update query
-$query = sprintf('INSERT INTO solax (%s) VALUES(%s) ON CONFLICT (sample) DO UPDATE SET %s',
-	implode(array_keys($fields), ','),
-	implode(array_map(function ($field ){
-			return sprintf(':%s', $field);
-		}, 
-		array_keys($fields)),','),
-	implode(array_map(function($field){
-			return sprintf('%s=excluded.%s', $field, $field);
-		},
-		array_keys($fields)),',')
-	);
+if ( Config::get('solax', 'update_on_duplicate') == '1' ){
+	$query = sprintf('INSERT INTO solax (%s) VALUES(%s) ON CONFLICT (sample) DO UPDATE SET %s',
+		implode(array_keys($fields), ','),
+		implode(array_map(function ($field ){
+				return sprintf(':%s', $field);
+			}, 
+			array_keys($fields)),','),
+		implode(array_map(function($field){
+				return sprintf('%s=excluded.%s', $field, $field);
+			},
+			array_keys($fields)),',')
+		);
+} else {
+	$query = sprintf('INSERT INTO solax (%s) VALUES(%s)',
+		implode(array_keys($fields), ','),
+		implode(array_map(function ($field ){
+				return sprintf(':%s', $field);
+			}, 
+			array_keys($fields)),',')
+		);
+}
+
+
 $stmt = $db->prepare($query);
 
 // try to fetch temp from openweathermap if so desired
@@ -81,7 +93,7 @@ if ( Config::get('options', 'temperature') == 'openweathermap' ){
 	$contents = file_get_contents($url);
 	$clima = json_decode($contents);
 
- 	$tempOpenweathermap = (int) $clima->main->temp;
+ 	$tempOpenweathermap = $clima->main->temp;
 }
 
 
@@ -89,11 +101,13 @@ $counter = 0;
 foreach ( $info as $sample ){
 	// we don't need records in the future
 	if ( time() < (3600 * Config::get('solax', 'time_offset')) + $sample->uploadTime/1000) {
+		print "Ignoring records in the future\n";
 		break;
 	}
 
 	// don't insert bogus
 	if ( $sample->gridpower == '' ){
+		print "Ignoring empty record\n";
 		continue;
 	}	
 
@@ -109,7 +123,7 @@ foreach ( $info as $sample ){
 
 	// no yield befor 3am
 	// this is to prevent crap in the db
-	if ( date('H', (3600*7) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
+	if ( date('H', (3600*Config::get('solax', 'time_offset')) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
 		printf("Changing yield from %f to %f @ %s\n", $sample->yieldtoday, 0, $sample->uploadTimeValueGenerated);
 		$sample->yieldtoday = 0;
 
@@ -127,7 +141,7 @@ foreach ( $info as $sample ){
 	try {
 		$stmt->execute();
 		$counter++;
-	} catch ( PDOException $e ){
+	} catch ( \PDOException $e ){
 		// print $e;
 		//  print "time: " . $sample->uploadTimeValue . "\n";
 	}

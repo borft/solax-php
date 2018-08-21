@@ -4,7 +4,6 @@ namespace solax_php;
 
 class Config {
 
-	const iniFile = '../config/php-solax.ini';
 
 	protected static $instance;
 
@@ -15,7 +14,8 @@ class Config {
 	 * constructor, reads ini file
 	 */
 	protected function __construct(){
-		$this->config = parse_ini_file(self::iniFile, true);
+		$this->config = parse_ini_file(__DIR__ . '/../config/solax-php.ini', true);
+		print_r($this->config);
 	}
 
 

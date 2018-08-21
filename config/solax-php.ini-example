@@ -1,0 +1,44 @@
+[database]
+hostname = localhost
+database = 
+username = 
+password = 
+
+; add SolaxCloud credentials here
+[solax]
+username = 
+password = 
+
+; set this to false if you don't want
+; to update request that already exist
+; especially useful when using alternative temperature
+; measurements
+update_on_duplicate = true
+
+; define timeoffset in hours
+time_offset = 7
+
+[pvoutput]
+api-key = 
+site-id = 
+; if you have smart meter data
+; enable this to push consumption/ export, etc
+push_electricity = true
+
+; amonut of history to push
+push_window = 2 hours
+
+
+[options]
+; possibilities: inverter,openweathermap
+temperature = inverter
+
+; set to true, only if donator at pvoutput.org
+extended_attributes = true
+
+[openweathermap]
+; set id of ciy here
+id = 
+; app id
+appid = 
+

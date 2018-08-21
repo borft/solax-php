@@ -3,7 +3,7 @@
 namespace solax_php;
 use \PDO as PDO;
 
-require_once('../lib/autoloader.php');
+require_once(__DIR__ . '/../lib/autoloader.php');
 
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',

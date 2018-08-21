@@ -3,7 +3,7 @@
 namespace solax_php;
 use \PDO as PDO;
 
-require_once('../lib/autoloader.php');
+require_once(__DIR__ . '/../lib/autoloader.php');
 
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
@@ -130,10 +130,11 @@ SELECT
 	voltage_ac,
 	temperature
 FROM solax
-WHERE sample > (NOW() - INTERVAL '2 hours')
+WHERE sample > (NOW() - INTERVAL '%s')
 ORDER BY sample ASC
 EOI;
 
+$query = sprintf($query, Config::get('pvoutput', 'push_window'));
 $stmt = $db->prepare($query);
 $stmt->execute();
 
