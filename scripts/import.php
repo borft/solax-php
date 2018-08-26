@@ -108,8 +108,8 @@ foreach ( $info as $sample ){
 
 	// don't insert bogus
 	if ( $sample->gridpower == '' ){
-		print "Ignoring empty record\n";
-		continue;
+		//print "Ignoring empty record\n";
+		//continue;
 	}	
 
 	// calculate corrected timestamp
@@ -124,7 +124,7 @@ foreach ( $info as $sample ){
 
 	// no yield befor 3am
 	// this is to prevent crap in the db
-	if ( date('H', (3600*Config::get('solax', 'time_offset')) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
+	if ( (date('H', (3600*Config::get('solax', 'time_offset'))) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
 		printf("Changing yield from %f to %f @ %s\n", $sample->yieldtoday, 0, $sample->uploadTimeValueGenerated);
 		$sample->yieldtoday = 0;
 
