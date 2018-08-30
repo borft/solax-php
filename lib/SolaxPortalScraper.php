@@ -128,19 +128,6 @@ class SolaxPortalScraper implements SolaxScraperInterface {
 		$this->inverter = $this->inverters[$inverterIndex];
 	}
 
-/*
-
-https://www.solax-portal.com/
-
-
-	dz/home/overviewdata/235425?timetype=string&columnName=dqgl&timeColumnName=RTCTime&StartTime=2018-08-30&EndTime=2018-8-31
-
-cookie: ASP.NET_SessionId=slpikscvtzjffoaf03gpvrre; SERVERID=efafd2f94476fdac21e872aec3e8db11|1535657901|1535657899; SiteUserId=7268; SiteUserPassword=2AF4FC6314C0031B0334E00BF4632D777EEBD720
-*/
-
-	/**
-	curl -v  'https://www.solax-portal.com/dz/home/login'    --data 'username=johnmitch5000&password=Mirar475&saveStatus=true&ValidateCode=False'  
-		*/
 
 	protected function loginSite(){
 		print "Trying to log in!\n\n";
