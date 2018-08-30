@@ -9,6 +9,10 @@ password =
 username = 
 password = 
 
+; can be SolaxCloud or SolaxPortal
+scraper_type = SolaxCloud
+
+
 ; set this to false if you don't want
 ; to update request that already exist
 ; especially useful when using alternative temperature
