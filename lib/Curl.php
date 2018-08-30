@@ -21,6 +21,10 @@ class Curl {
 		curl_setopt_array($this->curl, $opts);
 	}
 
+	public function getCurl(){
+	return $this->curl;
+	}
+
 	public function exec() : string {
 		return curl_exec($this->curl);
 	}

@@ -16,7 +16,10 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 // load solax API scraper
 try {
 	// login to api (to obtain tokenID)
-	$s = new SolaxScraper(Config::get('solax', 'username'), Config::get('solax', 'password'));
+	$s = SolaxScraper::factory(
+		Config::get('solax', 'scraper_type'), 
+		Config::get('solax', 'username'), 
+		Config::get('solax', 'password'));
 
 	// get sites (default selects site 0)
 	$s->mysite();
@@ -42,6 +45,11 @@ try {
 	print $e;
 	exit;
 }
+
+
+//print_r($info);
+//exit;
+
 printf("Got %d rows\n", count($info));
 //print_r($info);
 // map fields in JSON to DB table columns
@@ -124,7 +132,7 @@ foreach ( $info as $sample ){
 
 	// no yield befor 3am
 	// this is to prevent crap in the db
-	if ( (date('H', (3600*Config::get('solax', 'time_offset'))) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
+	if ( (date('G', (3600*Config::get('solax', 'time_offset'))) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
 		printf("Changing yield from %f to %f @ %s\n", $sample->yieldtoday, 0, $sample->uploadTimeValueGenerated);
 		$sample->yieldtoday = 0;
 
