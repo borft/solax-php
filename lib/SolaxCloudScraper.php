@@ -92,6 +92,10 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 		}
 
 		// set default site to index 0
+
+		print_r($response);
+		print_r($this->sites);
+
 		$this->setSite();
 		return $this->sites;
 	}
