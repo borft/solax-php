@@ -6,15 +6,29 @@ use \Exception as Exception;
 
 require_once(__DIR__ . '/../lib/autoloader.php');
 
+
+if ( isset($GLOBALS['argv'], $GLOBALS['argv'][1]) ){
+	$len = count($GLOBALS['argv']);
+	for ( $i = 1; $i < $len; $i++ ){
+		if ( $GLOBALS['argv'][$i] == '--date' ){
+			$date = $GLOBALS['argv'][($i+1)];
+			$i++;
+		} elseif ( $GLOBALS['argv'][$i] == '--set' ){
+			list($term, $value) = explode('=', $GLOBALS['argv'][($i+1)]);
+			Config::set($term, $value);
+			$i++;
+		}
+	}
+}
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
-        Config::get('database', 'hostname'),
-        Config::get('database', 'username'),
-        Config::get('database', 'database'),
-        Config::get('database', 'password')));
+        Config::get('database.hostname'),
+        Config::get('database.username'),
+        Config::get('database.database'),
+        Config::get('database.password')));
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$pvo = new PVOutput(Config::get('pvoutput','api-key'), Config::get('pvoutput', 'site-id'));
+$pvo = new PVOutput(Config::get('pvoutput.api-key'), Config::get('pvoutput.site-id'));
 
 /*
  * function to get power meter stats, using interval from
@@ -133,7 +147,7 @@ WHERE sample > (NOW() - INTERVAL '%s')
 ORDER BY sample ASC
 EOI;
 
-$query = sprintf($query, Config::get('pvoutput', 'push_window'));
+$query = sprintf($query, Config::get('pvoutput.push_window'));
 $stmt = $db->prepare($query);
 $stmt->execute();
 
@@ -154,7 +168,7 @@ while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ){
 		$energyConsumption = $powerConsumption = '';
 	}
 
-	if ( Config::get('pvoutput', 'extended_data') == '1' ){
+	if ( Config::get('pvoutput.extended_data') == '1' ){
 
 		$data[] = implode(',', [
 			str_replace('-','',$row['date']), $row['time'], (int)$row['yield_today'], 

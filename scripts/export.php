@@ -7,10 +7,10 @@ require_once(__DIR__ . '/../lib/autoloader.php');
 
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
-        Config::get('database', 'hostname'),
-        Config::get('database', 'username'),
-        Config::get('database', 'database'),
-        Config::get('database', 'password')));
+        Config::get('database.hostname'),
+        Config::get('database.username'),
+        Config::get('database.database'),
+        Config::get('database.password')));
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // setup db connection

@@ -39,7 +39,7 @@ class SolaxPortalScraper implements SolaxScraperInterface {
 		],
 		'overviewData' => [
 			'method' => 'GET',
-			'url' => 'dz/home/overviewdata/%d?timetype=string&columnName=dqgl&timeColumnName=RTCTime&StartTime=%s&EndTime=%s'
+			'url' => 'dz/home/overviewdata/%d?timetype=string&columnName=%s&timeColumnName=RTCTime&StartTime=%s&EndTime=%s'
 		],
 		'loginSite' => [
 			'method' => 'POST',
@@ -111,6 +111,9 @@ class SolaxPortalScraper implements SolaxScraperInterface {
 			$this->endPoints['getInverterInfo']['method']
 			);
 		$response = $this->getResponse($c);
+
+		print_r($response);
+
 		if ( !$this->checkSuccess($response) ){
 			throw new Exception(sprintf('Could not fetch inverter info: %s', print_r($response,1)));
 		}
@@ -157,13 +160,30 @@ class SolaxPortalScraper implements SolaxScraperInterface {
 	//	print_r(curl_getinfo($c->getCurl()));
 
 		$matches = [];
-			if ( preg_match_all('/^(Set-Cookie.*?)$/m', $response->response, $matches) ){
-				print "yes";
-			}
+		if ( preg_match_all('/^Set-Cookie(.*?);.*?$/m', $response->response, $matches) ){
+			$this->cookies = $matches;
+		}
 		print_r($matches);
 	}
 
+
 	public function getDailyInfo (string $date) : array {
+		$this->loginSite();
+
+		$column = 'dtfdl';
+
+		$c = $this->buildRequest(
+			sprintf($this->endPoints['overviewData']['url'],
+				$this->site->id, $column,  $date, $date),
+			$this->endPoints['overviewData']['method']);
+		$c->setOpt(\CURLOPT_HTTPHEADER, ['Cookie: ' . implode('; ', $this->cookies)]);
+		$response = $this->getResponse($c);
+
+		print_r($response);
+		
+	}
+
+	public function getDailyInfo_ (string $date) : array {
 
 		$this->loginSite();
 exit;

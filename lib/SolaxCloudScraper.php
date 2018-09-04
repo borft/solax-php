@@ -83,8 +83,11 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 				$this->user->userId));	
 		$response = $this->getResponse($c);
 
-		if ( $response->success == 1 ){
+		if ( $this->checkSuccess($response) ){
 			$this->sites = $response->result;
+		} else {
+			print_r($response);
+			throw new Exception('No sites found :('); 
 		}
 
 		// set default site to index 0

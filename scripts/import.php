@@ -7,19 +7,19 @@ require_once(__DIR__ . '/../lib/autoloader.php');
 
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
-	Config::get('database', 'hostname'),
-	Config::get('database', 'username'),
-	Config::get('database', 'database'),
-	Config::get('database', 'password')));
+	Config::get('database.hostname'),
+	Config::get('database.username'),
+	Config::get('database.database'),
+	Config::get('database.password')));
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // load solax API scraper
 try {
 	// login to api (to obtain tokenID)
 	$s = SolaxScraper::factory(
-		Config::get('solax', 'scraper_type'), 
-		Config::get('solax', 'username'), 
-		Config::get('solax', 'password'));
+		Config::get('solax.scraper_type'), 
+		Config::get('solax.username'), 
+		Config::get('solax.password'));
 
 	// get sites (default selects site 0)
 	$s->mysite();
@@ -36,7 +36,17 @@ try {
 	$date = date('Y-m-d', time() - 7200);
 
 	if ( isset($GLOBALS['argv'], $GLOBALS['argv'][1]) ){
-		$date = $GLOBALS['argv'][1];
+		$len = count($GLOBALS['argv']);
+		for ( $i = 1; $i < $len; $i++ ){
+			if ( $GLOBALS['argv'][$i] == '--date' ){
+				$date = $GLOBALS['argv'][($i+1)];
+				$i++;
+			} elseif ( $GLOBALS['argv'][$i] == '--set' ){
+				list($term, $value) = explode('=', $GLOBALS['argv'][($i+1)]);
+				Config::set($term, $value);
+				$i++;
+			}
+		}
 	}
 
 	//$date = '2018-07-06';
@@ -46,12 +56,8 @@ try {
 	exit;
 }
 
-
-//print_r($info);
-//exit;
-
 printf("Got %d rows\n", count($info));
-//print_r($info);
+
 // map fields in JSON to DB table columns
 $fields = [ 	'sample' => 'uploadTimeValueGenerated', 
 		'current_dc_1' => 'idc1',
@@ -70,7 +76,7 @@ $fields = [ 	'sample' => 'uploadTimeValueGenerated',
 	];
 
 // build insert/update query
-if ( Config::get('solax', 'update_on_duplicate') == '1' ){
+if ( Config::get('solax.update_on_duplicate') == '1' ){
 	$query = sprintf('INSERT INTO solax (%s) VALUES(%s) ON CONFLICT (sample) DO UPDATE SET %s',
 		implode(array_keys($fields), ','),
 		implode(array_map(function ($field ){
@@ -96,9 +102,9 @@ if ( Config::get('solax', 'update_on_duplicate') == '1' ){
 $stmt = $db->prepare($query);
 
 // try to fetch temp from openweathermap if so desired
-if ( Config::get('options', 'temperature') == 'openweathermap' ){
+if ( Config::get('options.temperature') == 'openweathermap' ){
 	$url = sprintf('http://api.openweathermap.org/data/2.5/weather?id=%s&lang=en&units=metric&APPID=%s',
-		Config::get('openweathermap', 'id'), Config::get('openweathermap', 'appid'));
+		Config::get('openweathermap.id'), Config::get('openweathermap.appid'));
 	$contents = file_get_contents($url);
 	$clima = json_decode($contents);
 
@@ -106,22 +112,31 @@ if ( Config::get('options', 'temperature') == 'openweathermap' ){
 }
 
 
-$counter = 0;
+$counter = [
+	'insert' => 0,
+	'future' => 0,
+	'empty' => 0,
+	'ignore' => 0,
+	'total' => 0
+];
 foreach ( $info as $sample ){
+	$counter['total']++;
 	// we don't need records in the future
-	if ( time() < (3600 * Config::get('solax', 'time_offset')) + $sample->uploadTime/1000) {
+	if ( time() < (3600 * Config::get('solax.time_offset')) + $sample->uploadTime/1000) {
 		print "Ignoring records in the future\n";
+		$counter['future']++;
 		break;
 	}
 
 	// don't insert bogus
-	if ( $sample->gridpower == '' ){
-		//print "Ignoring empty record\n";
-		//continue;
+	if ( $sample->gridpower === '' ){
+		print "Ignoring empty record\n";
+		$counter['empty']++;
+		continue;
 	}	
 
 	// calculate corrected timestamp
-	$dateTime = date('Y-m-d H:i:s', (3600* Config::get('solax', 'time_offset')) + $sample->uploadTime/1000);
+	$dateTime = date('Y-m-d H:i:s', (3600* Config::get('solax.time_offset')) + $sample->uploadTime/1000);
 
 	$sample->uploadTimeValueGenerated = $dateTime;
 
@@ -132,7 +147,7 @@ foreach ( $info as $sample ){
 
 	// no yield befor 3am
 	// this is to prevent crap in the db
-	if ( (date('G', (3600*Config::get('solax', 'time_offset'))) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
+	if ( (date('G', (3600*Config::get('solax.time_offset'))) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
 		printf("Changing yield from %f to %f @ %s\n", $sample->yieldtoday, 0, $sample->uploadTimeValueGenerated);
 		$sample->yieldtoday = 0;
 
@@ -149,14 +164,15 @@ foreach ( $info as $sample ){
 		});
 	try {
 		$stmt->execute();
-		$counter++;
+		$counter['insert']++;
 	} catch ( \PDOException $e ){
+		$counter['ignore']++;
 		// print $e;
 		//  print "time: " . $sample->uploadTimeValue . "\n";
 	}
 }
 	
-
-printf("%d rows inserted @ %s\n", $counter, date('Ymd H:i'));
+printf("Out of %d, %d inserted, %d ignored,  %d future, %d empty @ %s\n", 
+	$counter['total'], $counter['insert'], $counter['ignore'], $counter['future'], $counter['empty'], date('Ymd H:i'));
 
 ?>
