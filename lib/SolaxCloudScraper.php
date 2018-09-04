@@ -56,6 +56,7 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 		if ( isset($response->success) && $response->success == 1 ){
 			return true;
 		}
+		return false;
 	}
 
 	protected function getUserData ( object $response ) : \stdClass {
