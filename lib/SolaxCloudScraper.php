@@ -72,7 +72,6 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 	}
 
 	public function getSiteId () : string {
-		var_dump($this->site);
 		return $this->site->siteId;
 	}
 
