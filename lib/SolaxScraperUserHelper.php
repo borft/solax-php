@@ -20,7 +20,6 @@ trait SolaxScraperUserHelper {
 			$this->endPoints['login']['method']);
 
 		$response = $this->getResponse($c);
-		print_r($response);
 		if ( !$this->checkSuccess($response) ){
 			throw new Exception(sprintf('error logging in'));
 		}
