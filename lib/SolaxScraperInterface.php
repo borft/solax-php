@@ -15,7 +15,7 @@ interface SolaxScraperInterface {
 	public function setInverter(int $inverterIndex = 0) : void;
 	public function getDailyInfo (string $date) : array;
 
-	public function getUserId () : int;
+	public function getUserId () : string;
 	public function getTokenId() : string;
 }
 

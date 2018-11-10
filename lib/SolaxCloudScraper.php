@@ -25,11 +25,11 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 			'method' => 'POST'
 		],
 		'getYield' => [
-			'url' => '/proxy//mysite/getYield?month=%d&reportType=2&siteId=%d&tokenId=%s&webTime=%d,%d,26&year=%d',
+			'url' => '/proxy//mysite/getYield?month=%d&reportType=2&siteId=%s&tokenId=%s&webTime=%d,%d,26&year=%d',
 			'method' => 'POST'
 		],
 		'getInverterInfo' => [
-			'url' => '/proxy//mysite/getInverterInfo?siteId=%d&tokenId=%s',
+			'url' => '/proxy//mysite/getInverterInfo?siteId=%s&tokenId=%s',
 			'method' => 'POST'
 		],
 		// /proxy//inverter/getDailyInfo?inverterSn=XB302182103106&today=2018-06-24&tokenId=b679ae3ccb80ee454dc1fd75dffeace2&wifiSn=SPWM9AKAKL
@@ -63,7 +63,7 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 		return $response->result;
 	}
 
-	public function getUserId () : int {
+	public function getUserId () : string {
 		return $this->user->userId;
 	}
 
@@ -71,7 +71,8 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 		return $this->user->tokenId;
 	}
 
-	public function getSiteId () : int {
+	public function getSiteId () : string {
+		var_dump($this->site);
 		return $this->site->siteId;
 	}
 
@@ -79,11 +80,11 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 
 		$c = $this->buildRequest($this->endPoints['mysite']['url']);
 		$c->setOpt(CURLOPT_POSTFIELDS, 
-			sprintf('tokenId=%s&userId=%d',
+			sprintf('tokenId=%s&userId=%s',
 				$this->user->tokenId,
 				$this->user->userId));	
 		$response = $this->getResponse($c);
-
+print_r($response);
 		if ( $this->checkSuccess($response) ){
 			$this->sites = $response->result;
 		} else {
@@ -98,6 +99,7 @@ class SolaxCloudScraper implements SolaxScraperInterface {
 
 	public function setSite(int $siteIndex = 0) : void {
 		$this->site = $this->sites[$siteIndex];
+		$this->site->siteId = (string) $this->site->siteIds;
 	}
 
 	public function getInverterInfo () : array {
