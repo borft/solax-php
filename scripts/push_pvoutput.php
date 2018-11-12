@@ -7,19 +7,6 @@ use \Exception as Exception;
 require_once(__DIR__ . '/../lib/autoloader.php');
 
 
-if ( isset($GLOBALS['argv'], $GLOBALS['argv'][1]) ){
-	$len = count($GLOBALS['argv']);
-	for ( $i = 1; $i < $len; $i++ ){
-		if ( $GLOBALS['argv'][$i] == '--date' ){
-			$date = $GLOBALS['argv'][($i+1)];
-			$i++;
-		} elseif ( $GLOBALS['argv'][$i] == '--set' ){
-			list($term, $value) = explode('=', $GLOBALS['argv'][($i+1)]);
-			Config::set($term, $value);
-			$i++;
-		}
-	}
-}
 // setup db connection
 $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
         Config::get('database.hostname'),
@@ -96,7 +83,9 @@ if ( isset($argv[1]) && $argv[1] == 'daily' ){
 		FROM solax s
 		GROUP BY date(sample))
 	 AS q 
-	WHERE q.date > (CURRENT_TIMESTAMP - INTERVAL '2 days')
+	 WHERE 
+	 q.date > (CURRENT_TIMESTAMP - INTERVAL '2 days') 
+	 /* q.date = '2018-10-01' */
 	ORDER BY q.date DESC
 EOI;
 

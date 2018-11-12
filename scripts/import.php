@@ -32,23 +32,12 @@ try {
 	// get list of inverters for selected site (default selects 0)
 	$s->getInverterInfo();
 
-	// get info for cuurent day for selected site + inverter
-	$date = date('Y-m-d', time() - 7200);
-
-	if ( isset($GLOBALS['argv'], $GLOBALS['argv'][1]) ){
-		$len = count($GLOBALS['argv']);
-		for ( $i = 1; $i < $len; $i++ ){
-			if ( $GLOBALS['argv'][$i] == '--date' ){
-				$date = $GLOBALS['argv'][($i+1)];
-				$i++;
-			} elseif ( $GLOBALS['argv'][$i] == '--set' ){
-				list($term, $value) = explode('=', $GLOBALS['argv'][($i+1)]);
-				Config::set($term, $value);
-				$i++;
-			}
-		}
+	try {
+		$date = Config::get('global.date');
+	} catch ( Exception $e ){
+		// get info for cuurent day for selected site + inverter
+		$date = date('Y-m-d', time() - 7200);
 	}
-
 	//$date = '2018-07-06';
 	$info = $s->getDailyInfo($date);
 } catch ( Exception $e ){
@@ -147,7 +136,7 @@ foreach ( $info as $sample ){
 
 	// no yield befor 3am
 	// this is to prevent crap in the db
-	if ( (date('G', (3600*Config::get('solax.time_offset'))) + $sample->uploadTime/1000) < 4 && $sample->yieldtoday > 0){
+	if ( (date('G', (3600*Config::get('solax.time_offset')) + $sample->uploadTime/1000)) < 4 && $sample->yieldtoday > 0){
 		printf("Changing yield from %f to %f @ %s\n", $sample->yieldtoday, 0, $sample->uploadTimeValueGenerated);
 		$sample->yieldtoday = 0;
 
