@@ -85,10 +85,12 @@ FROM
 			MAX(kwh_out_1) - MIN(kwh_out_1) as out_1, 
 			MAX(kwh_out_2) - MIN(kwh_out_2) as out_2 
 		FROM electricity 
-		WHERE 
-			EXTRACT(month FROM sample) < 20 
 		GROUP BY 
-			EXTRACT(month FROM sample) 
+			CONCAT(
+				EXTRACT(year FROM sample),
+				'-',
+				EXTRACT(month FROM sample)
+			)
 		ORDER BY MIN(sample)
 		) as foo
 	) as bar
