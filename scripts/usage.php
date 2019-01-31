@@ -68,9 +68,13 @@ function printTable(array $data){
 
 $query = <<<EOQ
 SELECT 
-	*,
+	bar.start,
+	bar.end,
+	bar.in,
+	bar.out,
 	bar.in-bar.out as net_usage,
-	bar.in - bar.out + s.generation   as consumption
+	bar.in - bar.out + s.generation   as consumption,
+	s.generation
 FROM 
 	(SELECT 
 		*, 
