@@ -1,4 +1,8 @@
 <?php
+namespace solax_php;
+use \PDO as PDO;
+use \Exception as Exception;
+
 
 /**
 tcpdump cmdline:
@@ -79,9 +83,18 @@ E..(..@.......?./..g.[.U{.On...&P.............
     192.168.63.234.1883 > 47.254.152.103.2901: Flags [P.], cksum 0x1f5c (correct), seq 8:396, ack 9, win 4096, length 388
 E.....@....Y..?./..g.[.U{.On...&P....\..2....loc/SPWM9AKAKL..{"type":"X1-Boost-Air-Mini","SN":"SPWM9AKAKL","ver":"2.06.4","Data":[4.0,3.1,194.1,202.5,5.9,237.3,1365,35,2.5,5.9,0,783,637,0.00,0.00,0,0,0,0.0,0.0,0.00,0.00,0,0,0,0.0,0.0,0.00,0.00,0,0,0,0.0,0.0,0,0,0,0,0,0,0,0.00,0.00,0,0,0,0,0,0,0,49.99,0,0,0,0,0,0,0,0,0,0.00,0,8,0,0,0.00,0,8,2],"Information":[3.000,4,"X1-Boost-Air-Mini","XB302182103106",2,3.20,1.07,1.08,0.00]}
 */
+require_once(__DIR__ . '/../lib/autoloader.php');
 
-$db = new PDO('pgsql:host=host;user=solax;dbname=power;password=password');
+// setup db connection
+$db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
+        Config::get('database.hostname'),
+        Config::get('database.username'),
+        Config::get('database.database'),
+        Config::get('database.password')));
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+//$db = new PDO('pgsql:host=host;user=solax;dbname=power;password=password');
+//$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $fields = [     'sample' => 'uploadTimeValueGenerated',
                 'current_dc_1' => 'idc1',
