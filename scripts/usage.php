@@ -85,9 +85,9 @@ SELECT
 	TRUNC(100 * (s.generation - bar.out) / (bar.in - bar.out + s.generation), 2) as self_suff
 FROM 
 	(SELECT 
-		*, 
-		in_1+in_2 as in , 
-		out_1+out_2 as out 
+		foo.*,
+		foo.in_1+foo.in_2 as in , 
+		foo.out_1+foo.out_2 as out 
 	FROM 
 		(SELECT 
 			MIN(sample) as start, 
@@ -96,21 +96,42 @@ FROM
 			MAX(kwh_in_2) - MIN(kwh_in_2) as in_2, 
 			MAX(kwh_out_1) - MIN(kwh_out_1) as out_1, 
 			MAX(kwh_out_2) - MIN(kwh_out_2) as out_2 
-		FROM electricity 
+		FROM 
+			electricity 
 		/* start date of Powerpeers subscription */
-		WHERE date(sample) > '2018-07-11'
+		WHERE 	
+			date(sample) > '2018-07-11'
 		GROUP BY 
 			to_char(sample, 'YYYY-MM')
-		ORDER BY MIN(sample)
+		ORDER BY 
+			MIN(sample)
 		) as foo
-	) as bar
-	JOIN (SELECT
-		to_char(sample, 'YYYY-MM') AS yearmonth,
-		MAX(yield_total) - MIN(yield_total) as generation
-		FROM solax s
+		LEFT JOIN (SELECT
+			MAX(sample) - INTERVAL '1 month' as end,
+			MAX(kwh_in_1) as in_1,
+			MAX(kwh_in_2) as in_2,
+			MAX(kwh_out_1) as out_1,
+			MAX(kwh_out_2) as out_2
+		FROM electricity
 		WHERE date(sample) > '2018-07-11'
 		GROUP BY
 			to_char(sample, 'YYYY-MM')
+		ORDER BY MIN(sample)) as prev ON prev.end=foo.end
+
+	) as bar
+	JOIN (SELECT
+		to_char(daily.sample, 'YYYY-MM') AS yearmonth,
+		SUM(daily.yield) as generation
+		FROM (SELECT
+			MAX(sd.sample) as sample,
+			MAX(sd.yield_today) as yield
+			FROM solax sd
+			WHERE date(sd.sample) > '2018-07-11'
+			GROUP BY DATE(sd.sample)
+		) as daily
+		WHERE date(sample) > '2018-07-11'
+		GROUP BY
+			to_char(daily.sample, 'YYYY-MM')
 			
 		) as s ON s.yearmonth = to_char(bar.start, 'YYYY-MM')
 	ORDER BY bar.start
