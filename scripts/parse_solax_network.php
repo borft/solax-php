@@ -93,8 +93,6 @@ $db = new PDO(sprintf('pgsql:host=%s;user=%s;dbname=%s;password=%s',
         Config::get('database.password')));
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-//$db = new PDO('pgsql:host=host;user=solax;dbname=power;password=password');
-//$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $fields = [     'sample' => 'uploadTimeValueGenerated',
                 'current_dc_1' => 'idc1',
